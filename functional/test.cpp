@@ -1,6 +1,6 @@
 /**
  * License: MIT
- * Copyright (c) 2024 李宗霖 github: <https://github.com/supine0703>
+ * Copyright (c) 2024 Li Zonglin (李宗霖) github: <https://github.com/supine0703>
  * Repositories: lzl-cpp-lib <https://github.com/supine0703/lzl-cpp-lib>
  */
 
@@ -13,7 +13,12 @@
 
 using namespace lzl::utils;
 
-#define LZL_LOG_TYPE(T) std::cout << #T << ": " << typeid(T).name() << std::endl
+#define LZL_LOG_TYPE(T)                                                                            \
+    do                                                                                             \
+    {                                                                                              \
+        std::cout << ' ' << #T << std::string(5 - (sizeof(#T) >> 3), '\t') << " : \t"              \
+                  << TypeName<T>::value() << std::endl;                                            \
+    } while (0)
 
 // int func(int a, std::string b);
 

@@ -1,5 +1,5 @@
 # License: MIT
-# Copyright (c) 2024 李宗霖 github: <https://github.com/supine0703>
+# Copyright (c) 2024 Li Zonglin (李宗霖) github: <https://github.com/supine0703>
 # Repositories: lzl-cpp-lib <https://github.com/supine0703/lzl-cpp-lib>
 
 set(LZL_CPP_LIB_LOGO_PATH ${CMAKE_SOURCE_DIR}/logo)
@@ -16,7 +16,7 @@ set(LZL_CPP_LIB_LOGO_VALUE "
 file(WRITE ${LZL_CPP_LIB_LOGO_FILE} "\
 /**
  * License: MIT
- * Copyright (c) 2024 李宗霖 github: <https://github.com/supine0703>
+ * Copyright (c) 2024 Li Zonglin (李宗霖) github: <https://github.com/supine0703>
  * Repositories: lzl-cpp-lib <https://github.com/supine0703/lzl-cpp-lib>
  */
 
