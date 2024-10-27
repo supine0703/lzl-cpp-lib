@@ -9,7 +9,7 @@
  *   Start thinking Demangle, but it seems better to implement typename directly?
  * @file: typename.h
  * @brief: make type to string name
- * @example: TypeName<void (*)(size_t)>::value();  // return: void(*)(unsigned long long)
+ * @example: TypeName<void (*)(size_t)>::value();  // return: void (*)(unsigned long long)
  * @cpp: c++11 can be used but it is better to use c++17 or higher
  */
 
