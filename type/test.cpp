@@ -4,28 +4,38 @@
  * Repositories: lzl-cpp-lib <https://github.com/supine0703/lzl-cpp-lib>
  */
 
+
 #include "lzl_logo.h"
 #include "typename.h"
 
 #include <cstdint>
 #include <iostream>
-// #include <vector>
+#include <vector>
 
 using namespace lzl::utils;
 
 #define LZL_LOG_TYPE(T)                                                                            \
     do                                                                                             \
     {                                                                                              \
-        std::cout << ' ' << #T << std::string(5 - (sizeof(#T) >> 3), '\t') << " : \t"              \
+        std::cout << " " << #T << std::string(5 - (sizeof(#T) >> 3), '\t') << " : \t"              \
                   << TypeName<T>::value() << std::endl;                                            \
     } while (0)
 
-#define LZL_LOG_X_TYPE(X)                                                                          \
-    do                                                                                             \
-    {                                                                                              \
-        std::cout << " X: " << #X << std::string(5 - ((sizeof(#X) + 3) >> 3), '\t') << " : \t"     \
-                  << TypeName(X).value() << std::endl;                                             \
-    } while (0)
+#if __CPP_VERSION >= 201703L
+    #define LZL_LOG_X_TYPE(X)                                                                      \
+        do                                                                                         \
+        {                                                                                          \
+            std::cout << " X: " << #X << std::string(5 - ((sizeof(#X) + 3) >> 3), '\t') << " : \t" \
+                      << TypeName(X).value() << std::endl;                                         \
+        } while (0)
+#else
+    #define LZL_LOG_X_TYPE(X)                                                                      \
+        do                                                                                         \
+        {                                                                                          \
+            std::cout << " " << #X << std::string(5 - (sizeof(#X) >> 3), '\t') << " : \t"          \
+                      << TypeName<decltype(X)>::value() << std::endl;                              \
+        } while (0)
+#endif
 
 void test()
 {
@@ -34,7 +44,7 @@ void test()
     std::cout << "================================================================================"
               << std::endl;
 
-    // basic type (pointer, reference, const, volatile)
+    // basic type(pointer, reference, const, volatile)
     std::cout << "\n=== basic type (pointer, reference, const, volatile) ===" << std::endl;
     const float f_num = 0.0f;
     LZL_LOG_X_TYPE(0ULL);
@@ -61,6 +71,9 @@ void test()
         int a;
         double b;
     } _p;
+
+    // struct <-> pair
+    std::cout << "\n=== struct <-> pair ===" << std::endl;
     LZL_LOG_TYPE(_P);
     LZL_LOG_X_TYPE(_p);
     LZL_LOG_X_TYPE(std::move(_p));
@@ -90,7 +103,7 @@ void test()
         return _p;
     };
     LZL_LOG_X_TYPE(lambda);
-    LZL_LOG_X_TYPE([](int) { return 0.0; });
+    // LZL_LOG_X_TYPE([](int) { return 0.0; });
 #if __cpp_concepts
     LZL_LOG_TYPE(decltype([](int) { return 0.0; }));
 #endif // __cpp_concept; c++20

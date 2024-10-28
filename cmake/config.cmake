@@ -15,7 +15,7 @@ endif()
 
 # 设置编译选项，为了在Windows下能够正确显示中文
 if(MSVC)
-    string(APPEND CMAKE_CXX_FLAGS " /source-charset:utf-8 /execution-charset:GBK")
-elseif(CMAKE_COMPILER_IS_GNUCXX)
-    string(APPEND CMAKE_CXX_FLAGS " -fexec-charset=GBK")
+    string(APPEND CMAKE_CXX_FLAGS " /source-charset:utf-8 /execution-charset:utf-8")
+else()
+    string(APPEND CMAKE_CXX_FLAGS " -finput-charset=UTF-8 -fexec-charset=UTF-8")
 endif()

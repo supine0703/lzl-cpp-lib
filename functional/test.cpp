@@ -16,9 +16,17 @@ using namespace lzl::utils;
 #define LZL_LOG_TYPE(T)                                                                            \
     do                                                                                             \
     {                                                                                              \
-        std::cout << ' ' << #T << std::string(5 - (sizeof(#T) >> 3), '\t') << " : \t"              \
+        std::cout << " " << #T << std::string(5 - (sizeof(#T) >> 3), '\t') << " : \t"              \
                   << TypeName<T>::value() << std::endl;                                            \
     } while (0)
+
+#define LZL_LOG_X_TYPE(X)                                                                          \
+    do                                                                                             \
+    {                                                                                              \
+        std::cout << " X: " << #X << std::string(5 - ((sizeof(#X) + 3) >> 3), '\t') << " : \t"     \
+                  << TypeName(X).value() << std::endl;                                             \
+    } while (0)
+
 
 // int func(int a, std::string b);
 
@@ -39,42 +47,78 @@ using namespace lzl::utils;
 //     int operator()(int) const { return 0; }
 // };
 
-struct AACC
+// 递归基函数
+// template <typename Traits, size_t I = 0>
+// void log_arg_type()
+// {
+//     if constexpr (I < Traits::arity)
+//     {
+//         using argN = typename Traits::template arg<I>::type;
+//         std::cout << " typename traits::arg<" << I << ">"
+//                   << std::string(5 - ((23 + std::to_string(I).size()) >> 3), '\t') << " : \t"
+//                   << TypeName<argN>::value() << std::endl;
+//         log_arg_type<Traits, I + 1>();
+//     }
+// }
+
+template <typename T>
+void test_function_traits()
 {
-    void t(int a) {}
-    void ttt(int a, double b, const volatile char& c) {}
-};
+    using traits = function_traits<T>;
+    LZL_LOG_TYPE(typename traits::pointer);
+    LZL_LOG_TYPE(typename traits::function_type);
+    LZL_LOG_TYPE(typename traits::stl_function_type);
+    LZL_LOG_TYPE(typename traits::return_type);
+    LZL_LOG_TYPE(typename traits::args_tuple);
+    // log_arg_type<traits>();
+}
 
 void test()
 {
     std::cout << "=== Test Start! ===\n" << std::endl;
-    using traits = function_traits<void(const int, double, const volatile char&)>;
-    static_assert(traits::arity == 3, "Arity should be 3");
-    // 访问每个参数的类型
-    using t = traits::args_tuple;
-    using arg0_type = traits::arg<0>::type; // int
-    using arg1_type = traits::arg<1>::type; // double
-    using arg2_type = traits::arg<2>::type; // const char*
-    std::cout << "args_tuple: " << TypeName<t>::value() << std::endl;
-    std::cout << "arg0_type: " << TypeName<arg0_type>::value() << std::endl;
-    std::cout << "arg1_type: " << TypeName<arg1_type>::value() << std::endl;
-    std::cout << "arg2_type: " << TypeName<arg2_type>::value() << std::endl;
-    // using arg3_type = traits::arg<3>::type; // compile error
-    using t1 = traits::function_type;
-    using t2 = traits::pointer;
-    std::cout << "function_type: " << TypeName<t1>::value() << std::endl;
-    std::cout << "pointer: " << TypeName<t2>::value() << std::endl;
 
-    using traits2 = function_traits<decltype(&AACC::t)>;
-    using t3 = traits2::args_tuple;
-    using arg0_type2 = traits2::arg<0>::type; // int
-    std::cout << "\n\nargs_tuple: " << TypeName<t3>::value() << std::endl;
-    std::cout << "arg0_type: " << TypeName<arg0_type2>::value() << std::endl;
-    using t4 = traits2::function_type;
-    using t5 = traits2::pointer;
-    std::cout << "function_type: " << TypeName<t4>::value() << std::endl;
-    std::cout << "pointer: " << TypeName<t5>::value() << std::endl;
+    // Ordinary function
+    test_function_traits<void(double, const char*)>();
+    using traits = function_traits<void(double, const char*)>;
+
     std::cout << "\n=== Test End! ===\n" << std::endl;
+
+    auto l1 = []() {
+    };
+    auto l2 = []() {
+        return 0;
+    };
+    auto l3 = [](int a, int b) {
+        return a + b;
+    };
+    auto l4 = [](double a, double b) {
+        return a + b;
+    };
+    LZL_LOG_TYPE(decltype(l1));
+    LZL_LOG_TYPE(decltype(l2));
+    LZL_LOG_TYPE(decltype(l3));
+    LZL_LOG_TYPE(decltype(l4));
+    // function
+    struct f1
+    {
+        void operator()() {}
+    };
+    struct f2
+    {
+        int operator()() { return 0; }
+    };
+    struct f3
+    {
+        int operator()(int a, int b) { return a + b; }
+    };
+    struct f4
+    {
+        double operator()(double a, double b) { return a + b; }
+    };
+    LZL_LOG_TYPE(f1);
+    LZL_LOG_TYPE(f2);
+    LZL_LOG_TYPE(f3);
+    LZL_LOG_TYPE(f3);
 }
 
 int main(int argc, char const* argv[])
@@ -82,6 +126,5 @@ int main(int argc, char const* argv[])
     std::cout << "This is functional test, use cpp version: " << __CPP_VERSION << std::endl;
     std::cout << lzl::Logo::value << std::endl;
     test();
-
     return 0;
 }

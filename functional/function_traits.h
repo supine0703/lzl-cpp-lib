@@ -7,9 +7,12 @@
 #ifndef LZL_FUNCTIONAL_FUNCTION_TRAITS_H
 #define LZL_FUNCTIONAL_FUNCTION_TRAITS_H
 
+#include <cstdint>
 #include <functional>
 
-namespace lzl::utils {
+
+namespace lzl {
+namespace utils {
 
 // prototype
 template <typename T>
@@ -43,8 +46,9 @@ struct function_traits<Ret(Args...)>
     };
 #endif
 
-    using function_type = std::function<Ret(Args...)>;
     using pointer = Ret (*)(Args...);
+    using function_type = Ret(Args...);
+    using stl_function_type = std::function<Ret(Args...)>;
 };
 
 // function pointer
@@ -86,6 +90,7 @@ struct function_traits : function_traits<decltype(&Callable::operator())>
 {
 };
 
-}; // namespace lzl::utils
+} // namespace utils
+}; // namespace lzl
 
 #endif //LZL_FUNCTIONAL_FUNCTION_TRAITS_H
