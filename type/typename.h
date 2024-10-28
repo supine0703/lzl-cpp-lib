@@ -11,12 +11,16 @@
  * @brief: make type to string name
  * @example: TypeName<void (*)(size_t)>::value();  // return: void (*)(unsigned long long)
  * @cpp: c++11 can be used but it is better to use c++17 or higher
+ *       because of `if constexpr` and `fold expression`, it can used by function...
  */
 
 /**
  * @anchor Li Zonglin (李宗霖)　,，
  * @date 2024-10-27
  * Constructors are added to derive types from parameter variables
+ * @date 2024-10-28
+ * But, It must c++17 or higher can be used
+ * @example: TypeName(123.456).value() // c++17 return: "double"; c++14 compile error
  */
 
 /**
@@ -553,7 +557,8 @@ struct TypeName<std::string>
 };
 
 // std::vector
-#if __cpp_if_constexpr
+#if __cpp_if_constexpr // c++17 : 之后某个头文件包含了 `vector`
+
 template <typename T>
 struct TypeName<std::vector<T>>
 {
@@ -561,6 +566,7 @@ struct TypeName<std::vector<T>>
 
     TypeName(const std::vector<T>&) {}
 };
+
 #endif // __cpp_if_constexpr
 
 // ... ... more

@@ -11,6 +11,20 @@
 I will put my own cpp library here, I think these are useful. 
 我会将我自己使的cpp库放在这里，我觉得这些是有用的。
 
+All my tests are based on `MSVC`, `Clang` and `GCC`
+我的所有测试都是基于 `MSVC`, `Clang` 和 `GCC`
+
+I mainly use `c++17` and above, and try to be compatible with `c++11` as well, but I will highlight and gcc where I need to note
+我主要使用 `c++17` 以上，也尽力在 `c++11` 上兼容，需要注意的地方我会标记出来
+
+I used:
+我使用的：
+
+- `CMake 3.27.5`
+- `Visual Studio 17 2022`
+- `GCC 13.1.0`
+- `Clang 19.1.2`
+
 
 # 目录 <!-- omit in toc -->
 

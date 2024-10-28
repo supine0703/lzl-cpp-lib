@@ -9,7 +9,7 @@
 
 #include <cstdint>
 #include <iostream>
-#include <vector>
+// #include <vector>
 
 using namespace lzl::utils;
 
@@ -91,7 +91,9 @@ void test()
     };
     LZL_LOG_X_TYPE(lambda);
     LZL_LOG_X_TYPE([](int) { return 0.0; });
+#if __cpp_concepts
     LZL_LOG_TYPE(decltype([](int) { return 0.0; }));
+#endif // __cpp_concept; c++20
     struct La
     {
         auto operator()(int) -> double { return 0.0; }
