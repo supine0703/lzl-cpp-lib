@@ -46,4 +46,5 @@ _deps
 CMakeUserPresets.json
 
 # Build directory
+.cache/
 build/

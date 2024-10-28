@@ -14,31 +14,49 @@
  */
 
 /**
- * @anchor Li Zonglin (李宗霖)
+ * @anchor Li Zonglin (李宗霖)　,，
  * @date 2024-10-27
  * Constructors are added to derive types from parameter variables
+ */
+
+/**
+ * @anchor Li Zonglin (李宗霖)
+ * @date 2024-10-28
+ * I didn't find a perfect way to judge lambda, so I decided not to make lambda specialization
  */
 
 #ifndef LZL_TYPE_TYPENAME_H
 #define LZL_TYPE_TYPENAME_H
 
 #include <functional>
-#include <iostream>
 #include <string>
 
-namespace lzl::utils {
+namespace lzl {
+namespace utils {
 
 template <typename T, typename Enable = void>
 struct TypeName
 {
-    static constexpr std::string value()
+    static std::string value()
     {
 #if 0
         return typeid(T).name();
 #else
         std::string name = typeid(T).name();
+        if (name.find("lambda") != std::string::npos)
+        {
+            return name;
+        }
         auto pos = name.find_last_of("0123456789:");
-        return (pos != std::string::npos) ? name.substr(pos + 1) : name;
+        if (pos != std::string::npos)
+        {
+            auto sub = name.substr(pos + 1);
+            if (sub != "_")
+            {
+                return sub;
+            }
+        }
+        return name;
 #endif
     }
 
@@ -518,49 +536,11 @@ struct TypeName<Ret (Class::*)(Args...) const volatile>
 
     TypeName(Ret (Class::*)(Args...) const volatile) {}
 };
+
 #endif // __cpp_if_constexpr
 
 // lambda
-#if __cpp_concepts && 1
-template <typename T>
-concept IsLambda = requires(T t) {
-    { &T::operator() };
-};
-
-template <IsLambda T>
-struct TypeName<T>
-{
-    static std::string value()
-    {
-        return std::string("lambda<") + LambdaTypeName<decltype(&T::operator())>::value() + ">";
-    }
-
-    TypeName(const T&) {}
-
-private:
-    template <typename Lambda>
-    struct LambdaTypeName;
-
-    template <typename Ret, typename Class, typename... Args>
-    struct LambdaTypeName<Ret (Class::*)(Args...) const>
-    {
-        static std::string value()
-        {
-            if constexpr (sizeof...(Args) == 0)
-            {
-                return "(void) -> " + std::string(TypeName<Ret>::value());
-            }
-            else
-            {
-                return (
-                    std::string("(") + (... + (std::string(TypeName<Args>::value()) + ", ")) +
-                    "\b\b) -> " + TypeName<Ret>::value()
-                );
-            }
-        }
-    };
-};
-#endif // __cpp_concepts
+// ... ...
 
 // usual stl container
 // std::string
@@ -585,6 +565,7 @@ struct TypeName<std::vector<T>>
 
 // ... ... more
 
-} // namespace lzl::utils
+} // namespace utils
+} // namespace lzl
 
 #endif // LZL_TYPE_TYPENAME_H

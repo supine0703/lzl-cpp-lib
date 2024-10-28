@@ -6,6 +6,8 @@ cmake_minimum_required(VERSION 3.15)
 
 project(lzl-cpp-lib VERSION 0.1.1 LANGUAGES CXX)
 
+set(CMAKE_EXPORT_COMPILECOMMANDS ON)
+
 include(logo/logo.cmake)
 include(cmake/config.cmake)
 

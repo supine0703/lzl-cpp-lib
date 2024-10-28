@@ -4,7 +4,6 @@
  * Repositories: lzl-cpp-lib <https://github.com/supine0703/lzl-cpp-lib>
  */
 
-#include "is_lambda.h"
 #include "lzl_logo.h"
 #include "typename.h"
 
@@ -21,56 +20,86 @@ using namespace lzl::utils;
                   << TypeName<T>::value() << std::endl;                                            \
     } while (0)
 
+#define LZL_LOG_X_TYPE(X)                                                                          \
+    do                                                                                             \
+    {                                                                                              \
+        std::cout << " X: " << #X << std::string(5 - ((sizeof(#X) + 3) >> 3), '\t') << " : \t"     \
+                  << TypeName(X).value() << std::endl;                                             \
+    } while (0)
+
 void test()
 {
     std::cout << "=== Test Start! ===\n" << std::endl;
     std::cout << " type(T)\t\t\t\t : \tTypeName<T>::value()" << std::endl;
     std::cout << "================================================================================"
               << std::endl;
+
     // basic type (pointer, reference, const, volatile)
-    const float f = 1.1;
-    std::cout << TypeName(&f).value() << "!!!" << std::endl;
-    LZL_LOG_TYPE(int);
-    LZL_LOG_TYPE(const int32_t);
+    std::cout << "\n=== basic type (pointer, reference, const, volatile) ===" << std::endl;
+    const float f_num = 0.0f;
+    LZL_LOG_X_TYPE(0ULL);
+    LZL_LOG_X_TYPE(f_num);
     LZL_LOG_TYPE(volatile int);
     LZL_LOG_TYPE(const volatile int);
-    LZL_LOG_TYPE(uint64_t*);
+    LZL_LOG_X_TYPE(&f_num);
     LZL_LOG_TYPE(uint64_t* const);
-    LZL_LOG_TYPE(size_t&);
+    auto&& lrf_num = f_num;
+    auto&& rrf_num = std::move(f_num);
+    LZL_LOG_X_TYPE(lrf_num);
     LZL_LOG_TYPE(volatile size_t&);
-    LZL_LOG_TYPE(std::size_t&&);
+    LZL_LOG_X_TYPE(rrf_num);
     LZL_LOG_TYPE(const volatile std::size_t&&);
+
     // pair & tuple
+    std::cout << "\n=== pair & tuple ===" << std::endl;
     using pair1 = std::pair<int, double>;
     LZL_LOG_TYPE(pair1);
     using tuple1 = std::tuple<int, double, const char*>;
     LZL_LOG_TYPE(tuple1);
-    // function (pointer, member, lambda, std::function)
+    struct _P
+    {
+        int a;
+        double b;
+    } _p;
+    LZL_LOG_TYPE(_P);
+    LZL_LOG_X_TYPE(_p);
+    LZL_LOG_X_TYPE(std::move(_p));
+    std::cout << typeid(_p).name() << std::endl;
+    std::cout << typeid(std::move(_p)).name() << std::endl;
+
+    // function (pointer, std::function, member, lambda)
+    std::cout << "\n=== function (pointer, std::function, member, lambda) ===" << std::endl;
     LZL_LOG_TYPE(void(int));
-    LZL_LOG_TYPE(void (*)(int));
+    const float (*const ptr)(size_t) = nullptr;
+    LZL_LOG_X_TYPE(ptr);
+    using func1 = std::function<void(const volatile char&)>;
+    LZL_LOG_TYPE(func1);
+    using func2 = std::function<void(const volatile char**)>&&;
+    LZL_LOG_TYPE(func2);
+    using func3 = std::function<void(const char*** const, int)> const*;
+    LZL_LOG_TYPE(func3);
     struct AAA
     {
         void func(int) const {}
     };
-    std::cout << TypeName(&AAA::func).value() << "!!!" << std::endl;
-    LZL_LOG_TYPE(int(AAA::*)(void (*)(int)));
-    LZL_LOG_TYPE(int(AAA::*)(int, double));
-    LZL_LOG_TYPE(int(AAA::*)(int, const char*) const);
+    LZL_LOG_TYPE(size_t(AAA::*)(double (*)(int)));
+    LZL_LOG_X_TYPE(&AAA::func);
     LZL_LOG_TYPE(int(AAA::*)(int, std::string) volatile);
-    LZL_LOG_TYPE(int(AAA::*)(float) const volatile);
     LZL_LOG_TYPE(int(AAA::*)() const volatile);
-    auto lambda = [&f](int) {
-        return f;
+    auto lambda = [&_p](int) {
+        return _p;
     };
-    std::cout << TypeName([]() { return 0; }).value() << "!!!" << std::endl;
-    using func1 = std::function<void(int, double, const volatile char&)>;
-    LZL_LOG_TYPE(func1);
-    using func2 = std::function<void(int, double, const volatile char&)>&;
-    LZL_LOG_TYPE(func2);
-    using func3 = std::function<void(int, double, const volatile char&)>&&;
-    LZL_LOG_TYPE(func3);
-    using func4 = std::function<void(int, double, const volatile char&)> const*;
-    LZL_LOG_TYPE(func4);
+    LZL_LOG_X_TYPE(lambda);
+    LZL_LOG_X_TYPE([](int) { return 0.0; });
+    LZL_LOG_TYPE(decltype([](int) { return 0.0; }));
+    struct La
+    {
+        auto operator()(int) -> double { return 0.0; }
+    } la;
+    LZL_LOG_TYPE(La);
+
+    // enum & array & vector
+    std::cout << "\n=== enum & array & vector ===" << std::endl;
     using enum1 = enum SS : size_t {
         A,
         B,
@@ -79,38 +108,14 @@ void test()
     using enum2 = enum class FF : bool {
     };
     LZL_LOG_TYPE(enum2);
+    enum2 ee;
+    LZL_LOG_X_TYPE(ee);
     LZL_LOG_TYPE(AAA[10]);
+    int arr[10];
+    LZL_LOG_X_TYPE(arr);
     LZL_LOG_TYPE(std::vector<SS>);
 
     std::cout << "\n=== Test End! ===\n" << std::endl;
-
-    std::decay_t<decltype([]() {})> a;
-
-    struct Ul
-    {
-        double operator()(int i) const
-        {
-            std::cout << i << std::endl;
-            return 0.0;
-        }
-    };
-
-    using lambda1 = decltype([](int) -> double { return 0.0; });
-    using lambda2 = std::decay_t<decltype([](int) -> double { return 0.0; })>;
-    std::cout << std::is_same_v<
-                     lambda2,
-                     Ul> << std::is_same_v<lambda1, lambda2> << std::is_same_v<Ul, std::decay_t<Ul>>
-
-              << std::endl;
-
-    LZL_LOG_TYPE(lambda1);
-    LZL_LOG_TYPE(lambda2);
-    LZL_LOG_TYPE(Ul);
-
-    std::cout << typeid(lambda1).name() << std::endl;
-    std::cout << typeid(std::decay_t<lambda1>).name() << std::endl;
-    std::cout << typeid(Ul).name() << std::endl;
-    std::cout << typeid(std::decay_t<Ul>).name() << std::endl;
 }
 
 int main(int argc, char const* argv[])
