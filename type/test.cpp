@@ -4,7 +4,6 @@
  * Repositories: lzl-cpp-lib <https://github.com/supine0703/lzl-cpp-lib>
  */
 
-
 #include "lzl_logo.h"
 #include "typename.h"
 
@@ -103,7 +102,10 @@ void test()
         return _p;
     };
     LZL_LOG_X_TYPE(lambda);
-    // LZL_LOG_X_TYPE([](int) { return 0.0; });
+    auto lambda2 = [](auto i) {
+    };
+    LZL_LOG_X_TYPE(lambda2);
+    LZL_LOG_X_TYPE([](int) { return 0.0; });
 #if __cpp_concepts
     LZL_LOG_TYPE(decltype([](int) { return 0.0; }));
 #endif // __cpp_concept; c++20

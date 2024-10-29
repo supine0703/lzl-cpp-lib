@@ -10,7 +10,6 @@
 #include <cstdint>
 #include <functional>
 
-
 namespace lzl {
 namespace utils {
 

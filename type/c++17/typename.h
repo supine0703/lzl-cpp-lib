@@ -36,21 +36,28 @@
 #include "maybe_lambda.h"
 
 #include <functional>
-#include <string>
+#include <type_traits>
 
+/**
+ * Lambda: If the parameter list contains auto,
+ *         it cannot be recognized as a callable object at compile time
+ */
+#define LZL_TYPENAME_NOT_LAMBDA 0
 
 namespace lzl {
 namespace utils {
 
-template <typename T, typename Enable = void>
+template <typename T, typename = void>
 struct TypeName
 {
+    TypeName(const T&) {}
+    TypeName(T&&) {}
+
+#if LZL_TYPENAME_NOT_LAMBDA
+    static constexpr const char* value() { return typeid(T).name(); }
+#else
     static std::string value()
     {
-#if 0
-        return typeid(T).name();
-#else
-        std::string name = typeid(T).name();
         if constexpr (has_call_operator<T>::value)
         {
             if (maybe_lambda<T>::value())
@@ -59,18 +66,14 @@ struct TypeName
                        ">";
             }
         }
-        return name;
-#endif
+        return typeid(T).name();
     }
-
-    TypeName(const T&) {}
-    TypeName(T&&) {}
 
 private:
     template <typename Lambda>
     struct LambdaTypeName
     {
-        static std::string value() { return ""; }
+        static constexpr const char* value() { return ""; }
     };
 
     template <typename Ret, typename Class, typename... Args>
@@ -91,6 +94,7 @@ private:
             }
         }
     };
+#endif // LZL_TYPENAME_NOT_LAMBDA
 };
 
 // enum ...

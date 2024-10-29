@@ -42,7 +42,8 @@
 #include "maybe_lambda.h"
 
 #include <functional>
-#include <string>
+
+#define LZL_TYPENAME_NOT_LAMBDA 0
 
 namespace lzl {
 namespace utils {
@@ -52,6 +53,13 @@ template <typename... Args>
 struct concat;
 
 // ...
+#if LZL_TYPENAME_NOT_LAMBDA
+template <typename T, typename = void>
+struct TypeName
+{
+    static constexpr const char* value() { return typeid(T).name(); }
+};
+#else
 template <typename T, typename = void>
 struct TypeName
 {
@@ -108,7 +116,7 @@ public:
         );
     }
 };
-
+#endif
 template <>
 struct concat<>
 {
