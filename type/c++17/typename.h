@@ -44,8 +44,7 @@
  */
 #define LZL_TYPENAME_NOT_LAMBDA 0
 
-namespace lzl {
-namespace utils {
+namespace lzl::utils {
 
 template <typename T, typename = void>
 struct TypeName
@@ -427,7 +426,7 @@ struct TypeName<Ret(Args...)>
         }
     }
 
-    TypeName(Ret (*)(Args...)) {}
+    TypeName(Ret(Args...)) {}
 };
 
 // function pointer
@@ -600,7 +599,6 @@ struct TypeName<std::vector<T>>
 
 // ... ... more
 
-} // namespace utils
-} // namespace lzl
+} // namespace lzl::utils
 
 #endif // LZL_TYPE_TYPENAME_H

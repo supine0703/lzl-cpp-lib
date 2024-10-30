@@ -34,7 +34,7 @@ struct function_traits<Ret(Args...)>
         using type = typename std::tuple_element<I, args_tuple>::type;
     };
 #else
-    #if (__cplusplus >= 201402L) || (_MSVC_LANG >= 201402L)
+    #if __cpp_if_constexpr
     template <size_t I, typename = std::enable_if_t<(I < arity)>>
     #else
     template <size_t I, typename Enable = typename std::enable_if<(I < arity)>::type>
@@ -90,6 +90,6 @@ struct function_traits : function_traits<decltype(&Callable::operator())>
 };
 
 } // namespace utils
-}; // namespace lzl
+} // namespace lzl
 
 #endif //LZL_FUNCTIONAL_FUNCTION_TRAITS_H
