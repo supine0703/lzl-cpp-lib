@@ -66,27 +66,32 @@ struct function_traits<std::function<Ret(Args...)>> : function_traits<Ret(Args..
 template <typename Ret, typename Class, typename... Args>
 struct function_traits<Ret (Class::*)(Args...)> : function_traits<Ret(Args...)>
 {
+    using class_type = Class;
 };
 
 template <typename Ret, typename Class, typename... Args>
 struct function_traits<Ret (Class::*)(Args...) const> : function_traits<Ret(Args...)>
 {
+    using class_type = Class;
 };
 
 template <typename Ret, typename Class, typename... Args>
 struct function_traits<Ret (Class::*)(Args...) volatile> : function_traits<Ret(Args...)>
 {
+    using class_type = Class;
 };
 
 template <typename Ret, typename Class, typename... Args>
 struct function_traits<Ret (Class::*)(Args...) const volatile> : function_traits<Ret(Args...)>
 {
+    using class_type = Class;
 };
 
 // lambda or functor
 template <typename Callable>
 struct function_traits : function_traits<decltype(&Callable::operator())>
 {
+    using class_type = Callable;
 };
 
 } // namespace utils

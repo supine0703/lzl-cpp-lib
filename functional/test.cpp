@@ -15,18 +15,18 @@
 
 using namespace lzl::utils;
 
-#define LZL_LOG_TYPE(T)                                                                            \
-    do                                                                                             \
-    {                                                                                              \
-        std::cout << " " << #T << std::string(5 - (sizeof(#T) >> 3), '\t') << " : \t"              \
-                  << TypeName<T>::value() << std::endl;                                            \
+#define LZL_LOG_TYPE(T)                                                               \
+    do                                                                                \
+    {                                                                                 \
+        std::cout << " " << #T << std::string(5 - (sizeof(#T) >> 3), '\t') << " : \t" \
+                  << TypeName<T>::value() << std::endl;                               \
     } while (0)
 
-#define LZL_LOG_X_TYPE(X)                                                                          \
-    do                                                                                             \
-    {                                                                                              \
-        std::cout << " X: " << #X << std::string(5 - ((sizeof(#X) + 3) >> 3), '\t') << " : \t"     \
-                  << TypeName(X).value() << std::endl;                                             \
+#define LZL_LOG_X_TYPE(X)                                                                      \
+    do                                                                                         \
+    {                                                                                          \
+        std::cout << " X: " << #X << std::string(5 - ((sizeof(#X) + 3) >> 3), '\t') << " : \t" \
+                  << TypeName(X).value() << std::endl;                                         \
     } while (0)
 
 // 递归基函数
@@ -80,6 +80,7 @@ void test()
     auto f = [](int, char, uint16_t, void*) -> int {
         return 0;
     };
+    LZL_LOG_TYPE(function_traits<decltype(f)>::class_type);
     test_function_traits(std::function(f));
 #else
     using ft = std::function<void(int)>;
@@ -89,14 +90,15 @@ void test()
     auto lambda = [](int a, char b, uint16_t c, void* d) -> int {
         return 0;
     };
+    LZL_LOG_TYPE(function_traits<decltype(lambda)>::class_type);
     test_function_traits<decltype(lambda)>();
-
     // Member function
     struct AA
     {
         int f(int a, int b) volatile { return a + b; }
         int operator()(double) const { return 0; }
     };
+    LZL_LOG_TYPE(function_traits<decltype(&AA::f)>::class_type);
     test_function_traits<int (AA::*)(int, int)>();
     test_function_traits<decltype(&AA::f)>();
 
