@@ -7,7 +7,7 @@
 #ifndef LZL_FUNCTIONAL_FUNCTION_TRAITS_H
 #define LZL_FUNCTIONAL_FUNCTION_TRAITS_H
 
-#include <cstdint>
+#include <cstddef>
 #include <functional>
 
 namespace lzl {
@@ -93,6 +93,10 @@ struct function_traits : function_traits<decltype(&Callable::operator())>
 {
     using class_type = Callable;
 };
+
+// trains class type
+template <typename Func>
+using trains_class_type = typename function_traits<Func>::class_type;
 
 } // namespace utils
 } // namespace lzl
