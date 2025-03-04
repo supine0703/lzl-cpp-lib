@@ -1,11 +1,15 @@
-/**
- * License: MIT
- * Copyright (c) 2024 Li Zonglin (李宗霖) github: <https://github.com/supine0703>
- * Repositories: lzl-cpp-lib <https://github.com/supine0703/lzl-cpp-lib>
- */
+/*******************************************************************************
+**
+** License: MIT
+** Copyright (c) 2024-2025 李宗霖 (Li Zonglin)
+** Email: supine0703@outlook.com
+** GitHub: https://github.com/supine0703
+** Repository: https://github.com/supine0703/lzl-cpp-lib
+**
+*******************************************************************************/
 
-#include "lzl_logo.h"
-#include "typename.h"
+#include "lzl/logo.h"
+#include "lzl/typename.h"
 
 #include <cstdint>
 #include <iostream>
@@ -13,11 +17,11 @@
 
 using namespace lzl::utils;
 
-#define LZL_LOG_TYPE(T)                                                                            \
-    do                                                                                             \
-    {                                                                                              \
-        std::cout << " " << #T << std::string(5 - (sizeof(#T) >> 3), '\t') << " : \t"              \
-                  << TypeName<T>::value() << std::endl;                                            \
+#define LZL_LOG_TYPE(T)                                                               \
+    do                                                                                \
+    {                                                                                 \
+        std::cout << " " << #T << std::string(5 - (sizeof(#T) >> 3), '\t') << " : \t" \
+                  << TypeName<T>::value() << std::endl;                               \
     } while (0)
 
 #if __CPP_VERSION >= 201703L
@@ -28,11 +32,11 @@ using namespace lzl::utils;
                       << TypeName(X).value() << std::endl;                                         \
         } while (0)
 #else
-    #define LZL_LOG_X_TYPE(X)                                                                      \
-        do                                                                                         \
-        {                                                                                          \
-            std::cout << " " << #X << std::string(5 - (sizeof(#X) >> 3), '\t') << " : \t"          \
-                      << TypeName<decltype(X)>::value() << std::endl;                              \
+    #define LZL_LOG_X_TYPE(X)                                                             \
+        do                                                                                \
+        {                                                                                 \
+            std::cout << " " << #X << std::string(5 - (sizeof(#X) >> 3), '\t') << " : \t" \
+                      << TypeName<decltype(X)>::value() << std::endl;                     \
         } while (0)
 #endif
 
@@ -102,11 +106,11 @@ void test()
         return _p;
     };
     LZL_LOG_X_TYPE(lambda);
+#if __cpp_concepts
     auto lambda2 = [](auto i) {
     };
     LZL_LOG_X_TYPE(lambda2);
     LZL_LOG_X_TYPE([](int) { return 0.0; });
-#if __cpp_concepts
     LZL_LOG_TYPE(decltype([](int) { return 0.0; }));
 #endif // __cpp_concept; c++20
     struct La

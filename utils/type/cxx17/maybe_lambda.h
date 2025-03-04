@@ -1,8 +1,12 @@
-/**
- * License: MIT
- * Copyright (c) 2024 Li Zonglin (李宗霖) github: <https://github.com/supine0703>
- * Repositories: lzl-cpp-lib <https://github.com/supine0703/lzl-cpp-lib>
- */
+/*******************************************************************************
+**
+** License: MIT
+** Copyright (c) 2024-2025 李宗霖 (Li Zonglin)
+** Email: supine0703@outlook.com
+** GitHub: https://github.com/supine0703
+** Repository: https://github.com/supine0703/lzl-cpp-lib
+**
+*******************************************************************************/
 
 #ifndef LZL_TYPE_MAYBE_LAMBDA_H
 #define LZL_TYPE_MAYBE_LAMBDA_H
@@ -11,8 +15,7 @@
 #include <type_traits>
 #include <typeinfo>
 
-namespace lzl {
-namespace utils {
+namespace lzl::utils {
 
 template <typename T>
 struct has_call_operator
@@ -27,7 +30,6 @@ private:
 public:
     static constexpr bool value = decltype(check<T>(0))::value;
 };
-
 
 template <typename T>
 struct maybe_lambda
@@ -55,7 +57,6 @@ public:
     static constexpr bool value() { return has_call_operator<T>::value && check_id_name<T>(); }
 };
 
-} // namespace utils
-} // namespace lzl
+} // namespace lzl::utils
 
 #endif // LZL_TYPE_MAYBE_LAMBDA_H

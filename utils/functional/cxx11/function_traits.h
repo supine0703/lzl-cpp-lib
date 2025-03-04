@@ -1,11 +1,15 @@
-/**
- * License: MIT
- * Copyright (c) 2024 Li Zonglin (李宗霖) github: <https://github.com/supine0703>
- * Repositories: lzl-cpp-lib <https://github.com/supine0703/lzl-cpp-lib>
- */
+/*******************************************************************************
+**
+** License: MIT
+** Copyright (c) 2024-2025 李宗霖 (Li Zonglin)
+** Email: supine0703@outlook.com
+** GitHub: https://github.com/supine0703
+** Repository: https://github.com/supine0703/lzl-cpp-lib
+**
+*******************************************************************************/
 
-#ifndef LZL_FUNCTIONAL_FUNCTION_TRAITS_H
-#define LZL_FUNCTIONAL_FUNCTION_TRAITS_H
+#ifndef __LZL_UTILS_FUNCTION_TRAITS_H__
+#define __LZL_UTILS_FUNCTION_TRAITS_H__
 
 #include <cstddef>
 #include <functional>
@@ -26,24 +30,11 @@ struct function_traits<Ret(Args...)>
     using return_type = Ret;
     using args_tuple = std::tuple<Args...>;
 
-#if 0
-    template <size_t I>
-    struct arg
-    {
-        static_assert(I < arity, "index is out of range, index must less than sizeof arguments");
-        using type = typename std::tuple_element<I, args_tuple>::type;
-    };
-#else
-    #if __cpp_if_constexpr
-    template <size_t I, typename = std::enable_if_t<(I < arity)>>
-    #else
-    template <size_t I, typename Enable = typename std::enable_if<(I < arity)>::type>
-    #endif
+    template <size_t I, typename = typename std::enable_if<(I < arity)>::type>
     struct arg
     {
         using type = typename std::tuple_element<I, args_tuple>::type;
     };
-#endif
 
     using pointer = Ret (*)(Args...);
     using function_type = Ret(Args...);
@@ -101,4 +92,4 @@ using trains_class_type = typename function_traits<Func>::class_type;
 } // namespace utils
 } // namespace lzl
 
-#endif //LZL_FUNCTIONAL_FUNCTION_TRAITS_H
+#endif //__LZL_UTILS_FUNCTION_TRAITS_H__

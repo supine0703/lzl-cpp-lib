@@ -1,12 +1,16 @@
-/**
- * License: MIT
- * Copyright (c) 2024 Li Zonglin (李宗霖) github: <https://github.com/supine0703>
- * Repositories: lzl-cpp-lib <https://github.com/supine0703/lzl-cpp-lib>
- */
+/*******************************************************************************
+**
+** License: MIT
+** Copyright (c) 2024-2025 李宗霖 (Li Zonglin)
+** Email: supine0703@outlook.com
+** GitHub: https://github.com/supine0703
+** Repository: https://github.com/supine0703/lzl-cpp-lib
+**
+*******************************************************************************/
 
-#include "function_traits.h"
-#include "lzl_logo.h"
-#include "typename.h"
+#include "lzl/function_traits.h"
+#include "lzl/logo.h"
+#include "lzl/typename.h"
 
 #include <cstdint>
 #include <functional>

@@ -1,8 +1,12 @@
-/**
- * License: MIT
- * Copyright (c) 2024 Li Zonglin (李宗霖) github: <https://github.com/supine0703>
- * Repositories: lzl-cpp-lib <https://github.com/supine0703/lzl-cpp-lib>
- */
+/*******************************************************************************
+**
+** License: MIT
+** Copyright (c) 2024-2025 李宗霖 (Li Zonglin)
+** Email: supine0703@outlook.com
+** GitHub: https://github.com/supine0703
+** Repository: https://github.com/supine0703/lzl-cpp-lib
+**
+*******************************************************************************/
 
 /**
  * TypeNameDemangle -> TypeName: 
@@ -29,108 +33,69 @@
  * I didn't find a perfect way to judge lambda, so I decided not to make lambda specialization
  */
 
-/**
- * @anchor Li Zonglin (李宗霖)
- * @date 2024-10-29
- * I found that lambda can be judged by whether `typeid` and `operator()` are available. 
- * Based on `GCC`, `Clang`, and `MSVC`, there is a high probability of no problem.
- */
-
 #ifndef LZL_TYPE_TYPENAME_H
 #define LZL_TYPE_TYPENAME_H
 
 #include "maybe_lambda.h"
 
 #include <functional>
+#include <type_traits>
 
+/**
+ * Lambda: If the parameter list contains auto,
+ *         it cannot be recognized as a callable object at compile time
+ */
 #define LZL_TYPENAME_NOT_LAMBDA 0
 
-namespace lzl {
-namespace utils {
+namespace lzl::utils {
 
-// Helper function template to handle type name concatenation in tuples
-template <typename... Args>
-struct concat;
+template <typename T, typename = void>
+struct TypeName
+{
+    TypeName(const T&) {}
+    TypeName(T&&) {}
 
-// ...
 #if LZL_TYPENAME_NOT_LAMBDA
-template <typename T, typename = void>
-struct TypeName
-{
     static constexpr const char* value() { return typeid(T).name(); }
-};
 #else
-template <typename T, typename = void>
-struct TypeName
-{
+    static std::string value()
+    {
+        if constexpr (has_call_operator<T>::value)
+        {
+            if (maybe_lambda<T>::value())
+            {
+                return std::string("lambda<") + LambdaTypeName<decltype(&T::operator())>::value() + ">";
+            }
+        }
+        return typeid(T).name();
+    }
+
 private:
-    // ToCallOperatorType
-    template <typename U, typename = void>
-    struct ToCallOperatorType
-    {
-        using type = U;
-    };
-
-    template <typename U>
-    struct ToCallOperatorType<U, typename std::enable_if<has_call_operator<U>::value>::type>
-    {
-        using type = decltype(&U::operator());
-    };
-
-    // LambdaTypeName
     template <typename Lambda>
     struct LambdaTypeName
     {
-        static std::string value() { return ""; }
+        static constexpr const char* value() { return ""; }
     };
 
-    // LambdaTypeName specialization
     template <typename Ret, typename Class, typename... Args>
     struct LambdaTypeName<Ret (Class::*)(Args...) const>
     {
         static std::string value()
         {
-            if (sizeof...(Args) == 0)
+            if constexpr (sizeof...(Args) == 0)
             {
-                return std::string("(void) -> ") + TypeName<Ret>::value();
+                return "(void) -> " + std::string(TypeName<Ret>::value());
             }
             else
             {
-                return std::string("(") + concat<Args...>::value() + ") -> " +
-                       TypeName<Ret>::value();
+                return (
+                    std::string("(") + (... + (std::string(TypeName<Args>::value()) + ", ")) + "\b\b) -> "
+                    + TypeName<Ret>::value()
+                );
             }
         }
     };
-
-public:
-    static std::string value()
-    {
-        if (!maybe_lambda<T>::value())
-        {
-            return typeid(T).name();
-        }
-        // lambda
-        return (
-            std::string("lambda<") + LambdaTypeName<typename ToCallOperatorType<T>::type>::value() +
-            ">"
-        );
-    }
-};
-#endif
-template <>
-struct concat<>
-{
-    static std::string value() { return ""; }
-};
-
-template <typename T, typename... Args>
-struct concat<T, Args...>
-{
-    static std::string value()
-    {
-        return std::string(TypeName<T>::value()) + (sizeof...(Args) > 0 ? ", " : "") +
-               concat<Args...>::value();
-    }
+#endif // LZL_TYPENAME_NOT_LAMBDA
 };
 
 // enum ...
@@ -148,10 +113,12 @@ struct TypeName<T, typename std::enable_if<std::is_enum<T>::value>::type>
         name = (pos != std::string::npos) ? name.substr(pos + 1) : name;
 #endif
         return (
-            std::string("enum<") + TypeName<typename std::underlying_type<T>::type>::value() +
-            "> " + name
+            std::string("enum<") + TypeName<typename std::underlying_type<T>::type>::value() + "> " + name
         );
     }
+
+    TypeName(const T&) {}
+    TypeName(T&&) {}
 };
 
 // basic type
@@ -165,78 +132,104 @@ template <>
 struct TypeName<bool>
 {
     static constexpr const char* value() { return "bool"; }
+
+    TypeName(bool) {}
 };
 
 template <>
 struct TypeName<char>
 {
     static constexpr const char* value() { return "char"; }
+
+    TypeName(char) {}
 };
 
 template <>
 struct TypeName<unsigned char>
 {
     static constexpr const char* value() { return "unsigned char"; }
+
+    TypeName(unsigned char) {}
 };
 
 template <>
 struct TypeName<short>
 {
     static constexpr const char* value() { return "short"; }
+
+    TypeName(short) {}
 };
 
 template <>
 struct TypeName<unsigned short>
 {
     static constexpr const char* value() { return "unsigned short"; }
+
+    TypeName(unsigned short) {}
 };
 
 template <>
 struct TypeName<int>
 {
     static constexpr const char* value() { return "int"; }
+
+    TypeName(int) {}
 };
 
 template <>
 struct TypeName<unsigned int>
 {
     static constexpr const char* value() { return "unsigned int"; }
+
+    TypeName(unsigned int) {}
 };
 
 template <>
 struct TypeName<long>
 {
     static constexpr const char* value() { return "long"; }
+
+    TypeName(long) {}
 };
 
 template <>
 struct TypeName<unsigned long>
 {
     static constexpr const char* value() { return "unsigned long"; }
+
+    TypeName(unsigned long) {}
 };
 
 template <>
 struct TypeName<long long>
 {
     static constexpr const char* value() { return "long long"; }
+
+    TypeName(long long) {}
 };
 
 template <>
 struct TypeName<unsigned long long>
 {
     static constexpr const char* value() { return "unsigned long long"; }
+
+    TypeName(unsigned long long) {}
 };
 
 template <>
 struct TypeName<float>
 {
     static constexpr const char* value() { return "float"; }
+
+    TypeName(float) {}
 };
 
 template <>
 struct TypeName<double>
 {
     static constexpr const char* value() { return "double"; }
+
+    TypeName(double) {}
 };
 
 // const, volatile ...
@@ -263,27 +256,32 @@ template <typename T>
 struct TypeName<T*>
 {
     static std::string value() { return std::string(TypeName<T>::value()) + "*"; }
+
+    TypeName(T*) {}
 };
 
 template <typename T>
 struct TypeName<const T*>
 {
     static std::string value() { return std::string("const ") + TypeName<T>::value() + "*"; }
+
+    TypeName(const T*) {}
 };
 
 template <typename T>
 struct TypeName<volatile T*>
 {
     static std::string value() { return std::string("volatile ") + TypeName<T>::value() + "*"; }
+
+    TypeName(volatile T*) {}
 };
 
 template <typename T>
 struct TypeName<const volatile T*>
 {
-    static std::string value()
-    {
-        return std::string("const volatile ") + TypeName<T>::value() + "*";
-    }
+    static std::string value() { return std::string("const volatile ") + TypeName<T>::value() + "*"; }
+
+    TypeName(const volatile T*) {}
 };
 
 // lvalue reference
@@ -291,27 +289,32 @@ template <typename T>
 struct TypeName<T&>
 {
     static std::string value() { return TypeName<T>::value() + std::string("&"); }
+
+    TypeName(T&) {}
 };
 
 template <typename T>
 struct TypeName<const T&>
 {
     static std::string value() { return std::string("const ") + TypeName<T>::value() + "&"; }
+
+    TypeName(const T&) {}
 };
 
 template <typename T>
 struct TypeName<volatile T&>
 {
     static std::string value() { return std::string("volatile ") + TypeName<T>::value() + "&"; }
+
+    TypeName(volatile T&) {}
 };
 
 template <typename T>
 struct TypeName<const volatile T&>
 {
-    static std::string value()
-    {
-        return std::string("const volatile ") + TypeName<T>::value() + "&";
-    }
+    static std::string value() { return std::string("const volatile ") + TypeName<T>::value() + "&"; }
+
+    TypeName(const volatile T&) {}
 };
 
 // rvalue reference
@@ -319,37 +322,41 @@ template <typename T>
 struct TypeName<T&&>
 {
     static std::string value() { return TypeName<T>::value() + std::string("&&"); }
+
+    TypeName(T&&) {}
 };
 
 template <typename T>
 struct TypeName<const T&&>
 {
     static std::string value() { return std::string("const ") + TypeName<T>::value() + "&&"; }
+
+    TypeName(const T&&) {}
 };
 
 template <typename T>
 struct TypeName<volatile T&&>
 {
     static std::string value() { return std::string("volatile ") + TypeName<T>::value() + "&&"; }
+
+    TypeName(volatile T&&) {}
 };
 
 template <typename T>
 struct TypeName<const volatile T&&>
 {
-    static std::string value()
-    {
-        return std::string("const volatile ") + TypeName<T>::value() + "&&";
-    }
+    static std::string value() { return std::string("const volatile ") + TypeName<T>::value() + "&&"; }
+
+    TypeName(const volatile T&&) {}
 };
 
 // array
 template <typename T, size_t N>
 struct TypeName<T[N]>
 {
-    static std::string value()
-    {
-        return std::string(TypeName<T>::value()) + "[" + std::to_string(N) + "]";
-    }
+    static std::string value() { return std::string(TypeName<T>::value()) + "[" + std::to_string(N) + "]"; }
+
+    TypeName(T (&)[N]) {}
 };
 
 // pair
@@ -358,26 +365,32 @@ struct TypeName<std::pair<T1, T2>>
 {
     static std::string value()
     {
-        return (
-            std::string("std::pair<") + TypeName<T1>::value() + ", " + TypeName<T2>::value() + ">"
-        );
+        return (std::string("std::pair<") + TypeName<T1>::value() + ", " + TypeName<T2>::value() + ">");
     }
+
+    TypeName(const std::pair<T1, T2>&) {}
 };
 
+#if __cpp_if_constexpr // c++17 : `if constexpr` and `fold expression`
 // tuple
-template <>
-struct TypeName<std::tuple<>>
-{
-    static std::string value() { return "std::tuple<>"; }
-};
-
 template <typename... Args>
 struct TypeName<std::tuple<Args...>>
 {
     static std::string value()
     {
-        return std::string("std::tuple<") + concat<Args...>::value() + ">";
+        if constexpr (sizeof...(Args) == 0)
+        {
+            return "std::tuple<>";
+        }
+        else
+        {
+            return (
+                std::string("std::tuple<") + (... + (std::string(TypeName<Args>::value()) + ", ")) + "\b\b>"
+            );
+        }
     }
+
+    TypeName(const std::tuple<Args...>&) {}
 };
 
 // function
@@ -386,8 +399,20 @@ struct TypeName<Ret(Args...)>
 {
     static std::string value()
     {
-        return std::string(TypeName<Ret>::value()) + "(" + concat<Args...>::value() + ")";
+        if constexpr (sizeof...(Args) == 0)
+        {
+            return std::string(TypeName<Ret>::value()) + "(void)";
+        }
+        else
+        {
+            return (
+                std::string(TypeName<Ret>::value()) + "("
+                + (... + (std::string(TypeName<Args>::value()) + ", ")) + "\b\b)"
+            );
+        }
     }
+
+    TypeName(Ret(Args...)) {}
 };
 
 // function pointer
@@ -396,8 +421,20 @@ struct TypeName<Ret (*)(Args...)>
 {
     static std::string value()
     {
-        return std::string(TypeName<Ret>::value()) + " (*)(" + concat<Args...>::value() + ")";
+        if constexpr (sizeof...(Args) == 0)
+        {
+            return std::string(TypeName<Ret>::value()) + " (*)(void)";
+        }
+        else
+        {
+            return (
+                std::string(TypeName<Ret>::value()) + " (*)("
+                + (... + (std::string(TypeName<Args>::value()) + ", ")) + "\b\b)"
+            );
+        }
     }
+
+    TypeName(Ret (*)(Args...)) {}
 };
 
 // std::function
@@ -406,24 +443,42 @@ struct TypeName<std::function<Ret(Args...)>>
 {
     static std::string value()
     {
-        return (
-            std::string("std::function<") + TypeName<Ret>::value() + "(" +
-            concat<Args...>::value() + ")>"
-        );
+        if constexpr (sizeof...(Args) == 0)
+        {
+            return std::string("std::function<") + TypeName<Ret>::value() + "(void)>";
+        }
+        else
+        {
+            return (
+                std::string("std::function<") + TypeName<Ret>::value() + "("
+                + (... + (std::string(TypeName<Args>::value()) + ", ")) + "\b\b)>"
+            );
+        }
     }
+
+    TypeName(const std::function<Ret(Args...)>&) {}
 };
 
-// member function (const, volatile)
+// member function
 template <typename Ret, typename Class, typename... Args>
 struct TypeName<Ret (Class::*)(Args...)>
 {
     static std::string value()
     {
-        return (
-            std::string(TypeName<Ret>::value()) + "(" + TypeName<Class>::value() + "::*)(" +
-            concat<Args...>::value() + ")"
-        );
+        if constexpr (sizeof...(Args) == 0)
+        {
+            return (std::string(TypeName<Ret>::value()) + "(" + TypeName<Class>::value() + "::*)(void)");
+        }
+        else
+        {
+            return (
+                std::string(TypeName<Ret>::value()) + "(" + TypeName<Class>::value() + "::*)("
+                + (... + (std::string(TypeName<Args>::value()) + ", ")) + "\b\b)"
+            );
+        }
     }
+
+    TypeName(Ret (Class::*)(Args...)) {}
 };
 
 template <typename Ret, typename Class, typename... Args>
@@ -431,11 +486,22 @@ struct TypeName<Ret (Class::*)(Args...) const>
 {
     static std::string value()
     {
-        return (
-            std::string(TypeName<Ret>::value()) + "(" + TypeName<Class>::value() + "::*)(" +
-            concat<Args...>::value() + ") const"
-        );
+        if constexpr (sizeof...(Args) == 0)
+        {
+            return (
+                std::string(TypeName<Ret>::value()) + "(" + TypeName<Class>::value() + "::*)(void) const"
+            );
+        }
+        else
+        {
+            return (
+                std::string(TypeName<Ret>::value()) + "(" + TypeName<Class>::value() + "::*)("
+                + (... + (std::string(TypeName<Args>::value()) + ", ")) + "\b\b) const"
+            );
+        }
     }
+
+    TypeName(Ret (Class::*)(Args...) const) {}
 };
 
 template <typename Ret, typename Class, typename... Args>
@@ -443,23 +509,52 @@ struct TypeName<Ret (Class::*)(Args...) volatile>
 {
     static std::string value()
     {
-        return (
-            std::string(TypeName<Ret>::value()) + "(" + TypeName<Class>::value() + "::*)(" +
-            concat<Args...>::value() + ") volatile"
-        );
+        if constexpr (sizeof...(Args) == 0)
+        {
+            return (
+                std::string(TypeName<Ret>::value()) + "(" + TypeName<Class>::value() + "::*)(void) volatile"
+            );
+        }
+        else
+        {
+            return (
+                std::string(TypeName<Ret>::value()) + "(" + TypeName<Class>::value() + "::*)("
+                + (... + (std::string(TypeName<Args>::value()) + ", ")) + "\b\b) volatile"
+            );
+        }
     }
+
+    TypeName(Ret (Class::*)(Args...) volatile) {}
 };
+
 template <typename Ret, typename Class, typename... Args>
 struct TypeName<Ret (Class::*)(Args...) const volatile>
 {
     static std::string value()
     {
-        return (
-            std::string(TypeName<Ret>::value()) + "(" + TypeName<Class>::value() + "::*)(" +
-            concat<Args...>::value() + ") const volatile"
-        );
+        if constexpr (sizeof...(Args) == 0)
+        {
+            return (
+                std::string(TypeName<Ret>::value()) + "(" + TypeName<Class>::value()
+                + "::*)(void) const volatile"
+            );
+        }
+        else
+        {
+            return (
+                std::string(TypeName<Ret>::value()) + "(" + TypeName<Class>::value() + "::*)("
+                + (... + (std::string(TypeName<Args>::value()) + ", ")) + "\b\b) const volatile"
+            );
+        }
     }
+
+    TypeName(Ret (Class::*)(Args...) const volatile) {}
 };
+
+#endif // __cpp_if_constexpr
+
+// lambda
+// ... ...
 
 // usual stl container
 // std::string
@@ -467,11 +562,25 @@ template <>
 struct TypeName<std::string>
 {
     static std::string value() { return "std::string"; }
+
+    TypeName(const std::string&) {}
 };
+
+// std::vector
+#if __cpp_if_constexpr // c++17 : 之后某个头文件包含了 `vector`
+
+template <typename T>
+struct TypeName<std::vector<T>>
+{
+    static std::string value() { return std::string("std::vector<") + TypeName<T>::value() + ">"; }
+
+    TypeName(const std::vector<T>&) {}
+};
+
+#endif // __cpp_if_constexpr
 
 // ... ... more
 
-} // namespace utils
-} // namespace lzl
+} // namespace lzl::utils
 
 #endif // LZL_TYPE_TYPENAME_H

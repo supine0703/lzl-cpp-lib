@@ -2,17 +2,26 @@
 # Copyright (c) 2024 Li Zonglin (李宗霖) github: <https://github.com/supine0703>
 # Repositories: lzl-cpp-lib <https://github.com/supine0703/lzl-cpp-lib>
 
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.16)
 
-project(lzl-cpp-lib VERSION 0.1.1 LANGUAGES CXX)
+project(lzl-cpp-lib VERSION 0.2.0 LANGUAGES CXX)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# Set the cmake module path
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-include(logo/logo.cmake)
-include(cmake/config.cmake)
+# Import the relevant cmake configuration
+include(compiler_settings)
+include(copy_lib_interface_headers)
+include(copy_dirs_if_diff)
+include(auto_install_post_build)
+include(GNUInstallDirs)
 
-include_directories(type)
-include_directories(functional)
+# qt auto settings
+# set(CMAKE_AUTOUIC ON)
+# set(CMAKE_AUTOMOC ON)
+# set(CMAKE_AUTORCC ON)
 
-add_subdirectory(type)
-add_subdirectory(functional)
+# Add the subdirectory
+add_subdirectory(logo)
+add_subdirectory(utils)
+add_subdirectory(test)

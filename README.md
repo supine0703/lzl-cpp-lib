@@ -1,46 +1,86 @@
-<!--License: MIT
-    Copyright (c) 2024 Li Zonglin (李宗霖) github: <https://github.com/supine0703>
-    Repositories: lzl-cpp-lib <https://github.com/supine0703/lzl-cpp-lib>
--->
 
 ***Use [MIT License](./LICENSE)***
 
+English | [中文](./README_zh.md)
 
 # about lzl-cpp-lib <!-- omit in toc -->
 
-I will put my own cpp library here, I think these are useful. 
-我会将我自己使的cpp库放在这里，我觉得这些是有用的。
+Here is a collection of configurations for my common 'CMake + C++' projects that I find useful.
+All my tests are based on: 'MSVC', 'Clang', and 'GCC'.
+I mainly use 'c++17' and above, but try to work with 'c++11' as well.
 
-All my tests are based on `MSVC`, `Clang` and `GCC`
-我的所有测试都是基于 `MSVC`, `Clang` 和 `GCC`
+# Table of Contents <!-- omit in toc -->
 
-I mainly use `c++17` and above, and try to be compatible with `c++11` as well, but I will highlight and gcc where I need to note
-我主要使用 `c++17` 以上，也尽力在 `c++11` 上兼容，需要注意的地方我会标记出来
+- [Environment](#environment)
+- [Project Content](#project-content)
+  - [CMake Configuration](#cmake-configuration)
+  - [Function Traits](#function-traits)
+  - [Output Type](#output-type)
 
-I used:
-我使用的：
+# Environment
 
-- `CMake 3.27.5`
-- `Visual Studio 17 2022`
-- `GCC 13.1.0`
-- `Clang 19.1.2`
+- CMake 3.31.3
+- Visual Studio 17 2022
+- MinGW 14.2.0
+- Clang 19.1.6
 
+# Project Content
 
-# 目录 <!-- omit in toc -->
+## CMake Configuration
 
-- [项目目录](#项目目录)
+[cmake/README](./cmake/README.md)
 
+I put my usual **CMake** configuration on both **Linux** and **Windows**. While this is common to most projects, I've also wrapped some useful cmake functions to help me build more complex projects, including these at the top of the config whenever possible.
 
-# 项目目录
+For example, you can use the following code to include this configuration in your project:
 
-- [TypeName](./type/typename.h):
-  - 由于 `typeinfo` 提供的 `typeid::name` 比较难以观察调试，不直观。
-  - 因此封装了 `TypeName<T>::value()` 更直接，更方便观察
-  - example: 
+```cmake
+# Set the cmake module path
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+# Import the relevant cmake configuration
+include(compiler_settings)
+include(copy_lib_interface_headers)
+include(copy_dirs_if_diff)
+include(auto_install_post_build)
+include(generate_lib_exports_header)
+```
+
+## Function Traits
+
+[functional/README](./utils/functional/README.md)
+
+Function traits can extract function types to perform specific behaviors, such as extracting types from template functions to achieve implicit invocation of template functions; or extracting the parent class of a member function to use class pointers and function pointers as parameters.
+
+- [function_traits](./utils/functional/function_traits.h)
+  - Function traits, used to obtain function return values, parameter lists, etc., mainly used in templates
+  - Currently tested to extract all function types: normal functions, function pointers, standard library functions, member functions.
+
+```cpp
+struct Test {
+    void* value;
+    void printValue(int64_t num) { std::cout << num << std::endl; }
+};
+template <typename Func>
+static void readValue(lzl::utils::trains_class_type<Func>* object, Func read_func) {
+    using arg_type = typename lzl::utils::function_traits<Func>::template arg<0>::type;
+    static_assert(lzl::utils::function_traits<Func>::arity == 1);
+    (object->*read_func)(reinterpret_cast<arg_type>(object->value));
+}
+void test() {
+    Test test{reinterpret_cast<void*>(10)};
+    readValue(&test, &Test::printValue);
+}
+```
+
+More information can be found in this repository [supine0703/qt-settings](https://github.com/supine0703/qt-settings).
+
+## Output Type
+
+- [TypeName](./utils/type/cxx17/typename.h)
+  - Use `TypeName<T>::value()` instead of `typeid(T).name()` to get the type name of a variable. Because `gcc`'s `typeid(T).name()` is difficult to observe and debug, this is more direct and convenient.
+  - example:
     ```cpp
-    // TypeName<void (*)(size_t)>::value();  // return: void (*)(unsigned long long)
+    TypeName<void (*)(size_t)>::value();  // return: void (*)(unsigned long long)
     ```
-- [function_traits](./functional/function_traits.h):
-  - 函数萃取，用于获取函数返回值，参数列表等，主要会用在模板中
-  - 目前测试可以萃取所有函数类型：普通函数、函数指针、标准库函数、成员函数。
 
