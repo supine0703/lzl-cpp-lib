@@ -1,7 +1,15 @@
 project(lzl-utils-functional LANGUAGES CXX)
 
+if(FUNCTIONAL_UNUSED_GENERATED)
+    if(CMAKE_CXX_STANDARD GREATER_EQUAL 17)
+        set(CXX_INCLUDEDIR cxx17/)
+    else()
+        set(CXX_INCLUDEDIR cxx11/)
+    endif()
+endif()
+
 set(INTERFACE_HEADERS
-    function_traits.h
+    ${CXX_INCLUDEDIR}function_traits.h
 )
 
 # Copy library interface headers
@@ -16,6 +24,3 @@ if(INSTALL_INTERFACE_HEADERS)
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/lzl
     )
 endif()
-
-# Add auto install post build if enable
-add_auto_install_post_build_if_enable(${PROJECT_NAME})

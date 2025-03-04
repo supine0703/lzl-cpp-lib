@@ -28,6 +28,3 @@ if(INSTALL_INTERFACE_HEADERS)
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/lzl/cxx17
     )
 endif()
-
-# Add auto install post build if enable
-add_auto_install_post_build_if_enable(${PROJECT_NAME})

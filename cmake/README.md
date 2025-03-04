@@ -20,6 +20,9 @@ include(copy_lib_interface_headers)
 include(copy_dirs_if_diff)
 include(auto_install_post_build)
 include(generate_lib_exports_header)
+
+# Include headers directory which copy_lib_interface_headers output
+include_directories(${LIB_INTERFACE_HEADERS_INCLUDEDIR})
 ```
 
 If you want to use the **Qt** configuration, you can add the following code: 
