@@ -4,7 +4,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(lzl-cpp-lib VERSION 0.2.0 LANGUAGES CXX)
+project(lzl-cpp-lib VERSION 0.2.1 LANGUAGES CXX)
 
 # Set the cmake module path
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
