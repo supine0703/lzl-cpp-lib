@@ -1,0 +1,14 @@
+{
+  "version": 8,
+  "configurePresets": [
+    {
+      "hidden": true,
+      "name": "base",
+      "displayName": "Base Preset",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    }
+  ]
+}

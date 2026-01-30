@@ -1,0 +1,42 @@
+{
+  "version": 8,
+  "include": ["CMakePresets/Base.json", "CMakePresets/UserBase.json"],
+  "configurePresets": [
+    {
+      "name": "debug",
+      "displayName": "Debug",
+      "inherits": ["base", "qt-mingw-base"],
+      "binaryDir": "${sourceDir}/build/Qt_6_10_1_MinGW-Debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/.install/Qt_6_10_1_MinGW-Debug"
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "Release",
+      "inherits": ["base", "qt-mingw-base"],
+      "binaryDir": "${sourceDir}/build/Qt_6_10_1_MinGW-Release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/.install/Qt_6_10_1_MinGW-Release",
+        "AUTO_INSTALL_POST_BUILD": "ON",
+        "AUTO_DEPLOY_FOR_WINDOWS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug-build",
+      "displayName": "Build Debug",
+      "configurePreset": "debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "release-build",
+      "displayName": "Build Release",
+      "configurePreset": "release",
+      "configuration": "Release"
+    }
+  ]
+}

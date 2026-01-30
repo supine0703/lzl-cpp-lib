@@ -1,0 +1,68 @@
+project(${PARENT_PROJECT_PREFIX}_utils_logger VERSION 0.2.9 LANGUAGES CXX)
+
+set(LIB_UTILS_LOGGER ${PROJECT_NAME} PARENT_SCOPE)
+
+set(LIB_EXPORT_HEADER lib_logger_exports.h)
+set(INTERFACE_HEADERS
+    logger.h
+    logger_to_q_text_edit.h
+)
+set(SOURCES_FILES
+    ${INTERFACE_HEADERS}
+    ${LIB_EXPORT_HEADER}
+    logger.cpp
+    logger_to_q_text_edit.cpp
+)
+
+add_library(${PROJECT_NAME} STATIC
+    ${SOURCES_FILES}
+)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC
+    Qt${QT_VERSION_MAJOR}::Widgets
+)
+
+set(LIB_MACRO UTILS_LOGGER)
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    $<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,STATIC_LIBRARY>:${LIB_MACRO}_STATIC>
+    $<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,SHARED_LIBRARY>:${LIB_MACRO}_SHARED>
+    ${LIB_MACRO}_LIBRARY
+)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+
+# Install
+get_target_property(TARGET_TYPE ${PROJECT_NAME} TYPE)
+
+if(NOT TARGET_TYPE STREQUAL "STATIC_LIBRARY" OR INSTALL_LIBRARY_ARCHIVES)
+    install(TARGETS ${PROJECT_NAME}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+endif()
+
+if(INSTALL_INTERFACE_HEADERS)
+    install(FILES
+        ${INTERFACE_HEADERS}
+        ${LIB_EXPORT_HEADER}
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/utils
+    )
+endif()
+
+add_auto_install_post_build_if_enable(${PROJECT_NAME})
+
+# Copy library interface headers
+copy_lib_i_headers(LIB utils VERBOSE
+    HEADERS_FILES ${INTERFACE_HEADERS}
+)
+
+# Generate library exports header
+generate_lib_exports_header(LIB utils VERBOSE
+    TARGET ${PROJECT_NAME}
+    EXPORT_MACRO ${LIB_MACRO}
+    FILE_NAME ${LIB_EXPORT_HEADER}
+)

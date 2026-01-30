@@ -1,0 +1,38 @@
+{
+  "version": 8,
+  "configurePresets": [
+    {
+      "hidden": true,
+      "name": "qt-mingw-base",
+      "displayName": "Qt Base Preset",
+      "cmakeExecutable": "C:/__DevToolSet/qt/Tools/CMake_64/bin/cmake.exe",
+      "cacheVariables": {
+        "QT_QML_GENERATE_QMLLS_INI": "ON",
+        "CMAKE_PREFIX_PATH": "C:/__DevToolSet/qt/6.10.1/mingw_64",
+        "CMAKE_CXX_FLAGS_DEBUG_INIT": "-DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG",
+        "CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT": "-DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG",
+        "CMAKE_C_COMPILER": "C:/__DevToolSet/qt/Tools/mingw1310_64/bin/gcc.exe",
+        "CMAKE_CXX_COMPILER": "C:/__DevToolSet/qt/Tools/mingw1310_64/bin/g++.exe",
+        "CMAKE_TOOLCHAIN_FILE": {
+          "value": "C:/__DevToolSet/qt/6.10.1/mingw_64/lib/cmake/Qt6/qt.toolchain.cmake",
+          "type": "FILEPATH"
+        }
+      },
+      "environment": {
+        "VSCODE_QT_INSTALLATION": "C:/__DevToolSet/qt/6.10.1/mingw_64",
+        "PATH": "C:/__DevToolSet/qt/6.10.1/mingw_64/bin;C:/__DevToolSet/qt/Tools/mingw1310_64/bin;$penv{PATH}"
+      },
+      "vendor": {
+        "qt.io/QtCreator/1.0": {
+          "debugger": {
+            "DisplayName": "GNU gdb for MinGW 13.1 64-bit",
+            "Abis": ["x86-windows-msys-pe-64bit"],
+            "Binary": "C:/__DevToolSet/qt/Tools/mingw1310_64/bin/gdb.exe",
+            "EngineType": 1,
+            "Version": "13.1"
+          }
+        }
+      }
+    }
+  ]
+}

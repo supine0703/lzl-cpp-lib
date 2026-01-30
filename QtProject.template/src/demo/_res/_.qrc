@@ -1,0 +1,10 @@
+<!DOCTYPE RCC>
+<RCC>
+  <qresource prefix="/lzl/demo/font">
+    <file alias="MapleMonoNormal-NF-CN-Regular">font/MapleMonoNormal-NF-CN-Regular.ttf</file>
+    <file alias="iconfont">font/iconfont/iconfont.ttf</file>
+  </qresource>
+  <qresource prefix="/lzl/demo">
+    <file alias="logo">app_icon_512x512.png</file>
+  </qresource>
+</RCC>
