@@ -16,6 +16,7 @@
   - [CMake 配置](#cmake-配置)
   - [函数萃取](#函数萃取)
   - [输出类型](#输出类型)
+  - [Qt 项目模板](#qt-项目模板)
 
 # 环境
 
@@ -88,3 +89,9 @@ void test() {
     TypeName<void (*)(size_t)>::value();  // return: void (*)(unsigned long long)
     ```
 
+## Qt 项目模板
+
+- [qt-cmake-template](./QtProjectTemplate/README.md)
+  - 基于 `CMake` 的 `Qt` 项目模板，包含常用的配置和封装
+  - 主要是自用，支持 `Qt 5` 和 `Qt 6`，支持 `MSVC`, `MinGW` 和 `Clang`，支持 `QtCreator` 和 `VSCode` 联合开发
+  - 包含引入常用的第三方库 `spdlog`, `hidapi` 的方法 （这一条只在 `Windows` 上测试通过，其他未进行测试）

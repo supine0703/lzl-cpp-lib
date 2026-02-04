@@ -16,9 +16,12 @@ endfunction()
 # + TARGET_DIR - Directory of the target to install (Required)
 function(add_auto_install_post_build_not_custom_if_enable TARGET TARGET_DIR)
     if(AUTO_INSTALL_POST_BUILD)
-        add_custom_target(${TARGET}_post_build_install ALL
+        string(REPLACE "::" "_" TARGET_SAFE_NAME "${TARGET}")
+        set(INSTALL_TARGET_NAME "${TARGET_SAFE_NAME}_post_build_install")
+
+        add_custom_target(${INSTALL_TARGET_NAME} ALL
             COMMAND ${CMAKE_COMMAND} --install ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}
         )
-        add_dependencies(${TARGET}_post_build_install ${TARGET})
+        add_dependencies(${INSTALL_TARGET_NAME} ${TARGET})
     endif()
 endfunction()

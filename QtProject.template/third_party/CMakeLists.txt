@@ -4,5 +4,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # Add lzl-qt-settings
 # add_subdirectory(lzl-qt-settings)  # if use lzl-qt-settings lib
 
-# Add hidapi for Windows
+# Add spdlog
+include(build_spdlog) # Only a template
+
+# Add hidapi
 include(build_hidapi) # Only a template

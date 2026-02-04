@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.19)
 
-project(qt-project-template)
+project(qt-project-template VERSION 0.2.0 LANGUAGES CXX)
 
 # Options for installation and deployment
 option(AUTO_INSTALL_POST_BUILD "Auto install after build" OFF)

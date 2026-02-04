@@ -16,6 +16,7 @@ I mainly use 'c++17' and above, but try to work with 'c++11' as well.
   - [CMake Configuration](#cmake-configuration)
   - [Function Traits](#function-traits)
   - [Output Type](#output-type)
+  - [Qt Project Template](#qt-project-template)
 
 # Environment
 
@@ -86,4 +87,11 @@ More information can be found in this repository [supine0703/qt-settings](https:
     ```cpp
     TypeName<void (*)(size_t)>::value();  // return: void (*)(unsigned long long)
     ```
+
+## Qt Project Template
+
+- [qt-cmake-template](./QtProjectTemplate/README.md)
+  - A `CMake` based `Qt` project template that includes common configurations and encapsulations
+  - Mainly for personal use, supports `Qt 5` and `Qt 6`, supports `MSVC`, `MinGW`, and `Clang`, supports joint development with `QtCreator` and `VSCode`
+  - Includes methods to introduce commonly used third-party libraries such as `spdlog` and `hidapi` (this is only tested on `Windows`, others are untested)
 

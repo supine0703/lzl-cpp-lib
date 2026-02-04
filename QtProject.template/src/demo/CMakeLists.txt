@@ -1,7 +1,7 @@
-project(${PARENT_PROJECT_PREFIX}_demo VERSION 0.1.3 LANGUAGES CXX)
+project(${PARENT_PROJECT_PREFIX}_demo VERSION 0.1.0 LANGUAGES CXX)
 
 # Set version suffix
-set(PROJECT_VERSION_SUFFIX "-beta")
+set(PROJECT_VERSION_SUFFIX ".beta")
 
 # For Qt-Designer can find UI files (Qt6 maybe not need this)
 # list(APPEND CMAKE_AUTOUIC_SEARCH_PATHS
@@ -39,6 +39,10 @@ set(WINDOW_SOURCES_FILES
 set(GLOBAL_SOURCES_FILES
     global.cpp
     global.h
+    _logging/init.cpp
+    _logging/init.h
+    _logging/sinks/ansi_color_stdout_sink.h
+    _logging/sinks/daily_with_header_file_sink.h
 )
 
 set(SOURCES_FILES
@@ -73,17 +77,30 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     ORG_NAME=""
     DEV_TEAM_MEMBER="李宗霖"
 
+    # Application flags
+    FIXED_FLAG="lzl-demo"
+    QRC_PREFIX=":/lzl/demo"
+
     # Build information
     BUILD_TIME="${CURRENT_TIME}"
     BUILD_SYSTEM="${SYSTEM_INFO}"
     BUILD_QT_VERSION="${QT_VERSION}"
     BUILD_C_COMPILER="${C_COMPILER_INFO}"
     BUILD_CXX_COMPILER="${CXX_COMPILER_INFO}"
+
+    # Function switches
+    SHOW_WATERMARK_ENABLED=1
+    LOGGING_STDOUT_ENABLED=1
+    LOGGING_FILE_ENABLED=1
+    LOGGING_FILE_DIR=".logs/${PROJECT_NAME}$-{PROJECT_VERSION}${PROJECT_VERSION_SUFFIX}"
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     ${LIB_UTILS_LOGGER}
+
+    # spdlog::spdlog # if using spdlog directly
+    # hidapi::hidapi # if using hidapi directly
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
