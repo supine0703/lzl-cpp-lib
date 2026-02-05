@@ -1,7 +1,72 @@
-project(${PARENT_PROJECT_PREFIX}_demo VERSION 0.1.0 LANGUAGES CXX)
+# -----------------------------
+# Version numbers (4 segments)
+# -----------------------------
+set(VERSION_MAJOR 0)
+set(VERSION_MINOR 1)
+set(VERSION_PATCH 0)
+
+# Version build
+find_program(GIT_EXECUTABLE git)
+
+if(GIT_EXECUTABLE)
+    # Try to get commit count
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} rev-list --count HEAD
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE VERSION_BUILD
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+    )
+endif()
+
+# Fallback if Git not found or not a repo
+if(NOT VERSION_BUILD)
+    set(VERSION_BUILD 0)
+endif()
+
+# -----------------------------
+# Project definition
+# -----------------------------
+project(${PARENT_PROJECT_PREFIX}_demo
+    VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
+    LANGUAGES CXX
+)
 
 # Set version suffix
-set(PROJECT_VERSION_SUFFIX ".beta")
+set(PROJECT_VERSION_FULL "${PROJECT_VERSION}.beta")
+
+# -----------------------------
+# Icon file
+# -----------------------------
+set(APP_ICON_FILE "${CMAKE_CURRENT_SOURCE_DIR}/_res/app_icon.ico")
+
+# -----------------------------
+# App info
+# -----------------------------
+set(FILE_DESCRIPTION "${PARENT_APP_NAME_PREFIX} Executable")
+set(FILE_VERSION "${PROJECT_VERSION}.${VERSION_BUILD}")
+set(PRODUCT_NAME "${PARENT_APP_NAME_PREFIX} Demo")
+set(PRODUCT_VERSION "${PROJECT_VERSION_FULL}")
+set(COMPANY_NAME "Lzl")
+set(ORIGINAL_FILENAME "${PROJECT_NAME}")
+
+# -----------------------------
+# Generate version_info.rc
+# -----------------------------
+if(WIN32)
+    set(RESOURCES_FILES
+        ${CMAKE_BINARY_DIR}/version_info.rc
+    )
+    configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/_res/version_info.rc.in
+        ${RESOURCES_FILES}
+        @ONLY
+    )
+endif()
+
+# -----------------------------
+# Start Building Demo
+# -----------------------------
 
 # For Qt-Designer can find UI files (Qt6 maybe not need this)
 # list(APPEND CMAKE_AUTOUIC_SEARCH_PATHS
@@ -12,8 +77,8 @@ set(PROJECT_VERSION_SUFFIX ".beta")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(RESOURCES_FILES
+    ${RESOURCES_FILES}
     _res/_.qrc
-    _res/app_ico.rc
 )
 
 set(OBJECT_SOURCES_FILES
@@ -41,7 +106,6 @@ set(GLOBAL_SOURCES_FILES
     global.h
     _logging/init.cpp
     _logging/init.h
-    _logging/sinks/ansi_color_stdout_sink.h
     _logging/sinks/daily_with_header_file_sink.h
 )
 
@@ -72,10 +136,9 @@ endif()
 target_compile_definitions(${PROJECT_NAME} PRIVATE
 
     # Application information
-    APP_VERSION="${PROJECT_VERSION}${PROJECT_VERSION_SUFFIX}"
-    APP_NAME="${PARENT_APP_NAME_PREFIX} Demo"
-    ORG_NAME=""
-    DEV_TEAM_MEMBER="李宗霖"
+    APP_VERSION="${PRODUCT_VERSION}"
+    APP_NAME="${PRODUCT_NAME}"
+    ORG_NAME="${COMPANY_NAME}"
 
     # Application flags
     FIXED_FLAG="lzl-demo"
@@ -92,7 +155,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     SHOW_WATERMARK_ENABLED=1
     LOGGING_STDOUT_ENABLED=1
     LOGGING_FILE_ENABLED=1
-    LOGGING_FILE_DIR=".logs/${PROJECT_NAME}$-{PROJECT_VERSION}${PROJECT_VERSION_SUFFIX}"
+    LOGGING_FILE_DIR=".logs/${PROJECT_NAME}[${PRODUCT_VERSION}].logs"
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE

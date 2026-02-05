@@ -17,16 +17,38 @@
 
 #include "init.h"
 
-#include "sinks/ansi_color_stdout_sink.h"
 #include "sinks/daily_with_header_file_sink.h"
 
 #include <QDateTime>
 
+#include <spdlog/sinks/ansicolor_sink.h>
 #include <spdlog/spdlog.h>
+
+#if defined(_WIN32) && !defined(SPDLOG_HEADER_ONLY)
+    #include <spdlog/sinks/ansicolor_sink-inl.h>
+#endif
+
+// clang-format off
+#define HEADER_FMT                                        \
+    SPDLOG_EOL "=============================" SPDLOG_EOL \
+    "Segment Index: {}" SPDLOG_EOL                        \
+    "App: " APP_NAME SPDLOG_EOL                           \
+    "Version: " APP_VERSION SPDLOG_EOL                    \
+    "Build: " BUILD_SYSTEM ", " BUILD_TIME SPDLOG_EOL     \
+    "Start Time: {}" SPDLOG_EOL                           \
+    "=============================" SPDLOG_EOL
+// clang-format on
 
 using namespace PROJ_NAMESPACE::sinks;
 
+namespace {
 static constexpr std::string_view logger_name = FIXED_FLAG "/global_logger";
+[[nodiscard]] inline bool isRunningInQtCreator() noexcept
+{
+    static constexpr const char* qtcreator_run_env_var = "QTC_RUN";
+    return ::qEnvironmentVariableIsSet(qtcreator_run_env_var);
+}
+} // namespace
 
 namespace PROJ_NAMESPACE::demo {
 
@@ -36,26 +58,25 @@ void initLogging()
 
     if constexpr (LOGGING_STDOUT_ENABLED)
     {
-        // ⭐ stderr 彩色输出（Qt Creator 能识别 ANSI 颜色）
-        sinks.push_back(std::make_shared<ansi_color_stdout_sink>());
+        // ⭐ stdout 彩色输出（Qt Creator 能识别 ANSI 颜色）
+        if (isRunningInQtCreator())
+        {
+            const auto stdout_sink =
+                std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>(spdlog::color_mode::always);
+            sinks.push_back(stdout_sink);
+        }
     }
 
     if constexpr (LOGGING_FILE_ENABLED)
     {
         // ⭐ 文件日志（按日期滚动 + header）
-        static constexpr std::string_view header_fmt =
-            "\n=============================\n"
-            "Segment Index: {}\n"
-            "App: {}\n"
-            "Version: {}\n"
-            "Start Time: {}\n"
-            "=============================\n";
+        static constexpr std::string_view header_fmt = HEADER_FMT;
         const auto start_time = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss").toStdString();
-        sinks.push_back(
-            std::make_shared<daily_with_header_file_sink>(LOGGING_FILE_DIR, [start_time](std::size_t segment_index) {
-                return fmt::format(header_fmt, segment_index, APP_NAME, APP_VERSION, start_time);
-            })
-        );
+        const auto file_sink =
+            std::make_shared<daily_with_header_file_sink_mt>(LOGGING_FILE_DIR, [start_time](std::size_t segment_i) {
+                return fmt::format(header_fmt, segment_i, start_time);
+            });
+        sinks.push_back(file_sink);
     }
 
     // ⭐ 创建 logger
@@ -64,7 +85,8 @@ void initLogging()
         spdlog::set_default_logger(logger);
     }
 
-    // ⭐ 设置日志等级
+    // ⭐ 设置日志格式和级别
+    spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] %^[%l]%$ %v");
     spdlog::set_level(spdlog::level::trace);
     spdlog::flush_on(spdlog::level::info);
 
